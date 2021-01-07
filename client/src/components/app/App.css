@@ -1,0 +1,12 @@
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.App {
+    text-align: center;
+}
+
+.mainNavContainer {
+    border-bottom: 1px solid black;
+}
