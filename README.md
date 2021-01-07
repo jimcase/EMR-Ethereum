@@ -16,7 +16,7 @@ Install dependencies:
 ```bash
 ❯ npm install 
 ```
-Compile smarte contracts:
+Compile smart contracts:
 ```bash
 ❯ truffle compile 
 ```
