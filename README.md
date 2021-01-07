@@ -5,25 +5,33 @@ Electronic Medical Records PoC.
 
 
 
-How to use:
+### How to use
+
+Select the specific nvm version:
 ```bash
 ❯ nvm use v14.6.0 
 ```
+
+Install dependencies:
 ```bash
 ❯ npm install 
 ```
+Compile smarte contracts:
 ```bash
 ❯ truffle compile 
 ```
+Launch dev blockchain wit ganache.
 ```bash
 ❯ ganache-cli 
 ```
+Run the tests:
 ```bash
 ❯ truffle test 
 ```
 ```bash
 ❯ truffle deploy
 ```
+
 
 How to launch web app:
 ```bash
