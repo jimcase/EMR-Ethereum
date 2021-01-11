@@ -31,16 +31,20 @@ import web3 from "web3";
 
 class App extends Component {
   state = {
+
+    // blockchain bridge
     web3: null,
     accounts: null,
     contract: null,
+
+    // load files
     file: null,
     newFile: null,
-    verified: false,
-    isUser: false,
 
+    // from patient
     requestNewDoctor: null,
 
+    // from doctor
     openDoctor: false,
 
     // Add record: from doctor
@@ -68,6 +72,7 @@ class App extends Component {
     verifyRecordEncodingValidated: null,
     verifyRecordHash: null,
     verifyRecordHashValidated: null,
+    verified: false,
 
     // Add new Doctor. from admin
     addDoctorAddress: null,
@@ -89,10 +94,13 @@ class App extends Component {
 
     // ANY
     getRecordHash: null,
+    getRecordHashValidated: null,
     recordFound: [],
     getDoctorAddr: null,
+    getDoctorAddrValidated: null,
     doctorFound: [],
     getPatientAddr: null,
+    getPatientAddrValidated: null,
     patientFound: [],
 
     // Events
@@ -400,32 +408,62 @@ class App extends Component {
   }
 
   getRecord = async () => {
-
     const {accounts, contract} = this.state;
 
-    contract.methods.getRecord(this.state.getRecordHash).call({from: accounts[0]}).then(r => {
-      this.setState({recordFound: r});
-    }).catch((err) => {
-      console.log("Get a record failed with error: " + err);
-    });
-
+    const record = this.state.getRecordHash;
+    if (this.stringIsValid(record)) {
+      this.setState({getRecordHashValidated: true});
+      contract.methods.getRecord(record).call({from: accounts[0]}).then(r => {
+        this.setState({recordFound: r});
+        console.log("result: "+r);
+      }).catch((err) => {
+        this.setState({getRecordHashValidated: false});
+        console.log("Get a record failed with error: " + err);
+      });
+    }
+    else{
+      this.setState({getRecordHashValidated: false});
+    }
   }
 
   getDoctor = async () => {
-
     const {accounts, contract} = this.state;
 
-    contract.methods.getDoctor(this.state.getDoctorAddr).call({from: accounts[0]}).then(r => {
-      this.setState({doctorFound: r});
-    });
+    const doctor = this.state.getDoctorAddr;
+
+    if (this.addressIsValid(doctor)) {
+      this.setState({getDoctorAddrValidated: true});
+      contract.methods.getDoctor(doctor).call({from: accounts[0]}).then(r => {
+        this.setState({doctorFound: r});
+        console.log("result: "+r);
+      }).catch((err) => {
+        this.setState({getDoctorAddrValidated: false});
+        console.log("Get a doctor failed with error: " + err);
+      });
+    }
+    else{
+      this.setState({getDoctorAddrValidated: false});
+    }
   }
 
   getPatient = async () => {
     const {accounts, contract} = this.state;
 
-    contract.methods.getPatient(this.state.getPatientAddr).call({from: accounts[0]}).then(r => {
-      this.setState({patientFound: r});
-    });
+    const patient = this.state.getPatientAddr;
+
+    if (this.addressIsValid(patient)) {
+      this.setState({getPatientAddrValidated: true});
+      contract.methods.getPatient(patient).call({from: accounts[0]}).then(r => {
+        this.setState({patientFound: r});
+        console.log("result: "+r);
+      }).catch((err) => {
+        this.setState({getPatientAddrValidated: false});
+        console.log("Get a patient failed with error: " + err);
+      });
+    }
+    else{
+      this.setState({getPatientAddrValidated: false});
+    }
   }
 
   updateGetDoctorResult(result) {
@@ -1111,6 +1149,13 @@ class App extends Component {
                                         <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                                       </InputGroup.Prepend>
                                       <FormControl
+                                          style={{background:
+                                                this.state.getPatientAddrValidated === false ? (
+                                                    '#b66d60'
+                                                ) : (
+                                                    'none'
+                                                )}
+                                          }
                                           placeholder="Search a patient"
                                           aria-label="Address"
                                           aria-describedby="basic-addon1"
@@ -1143,6 +1188,13 @@ class App extends Component {
                                         <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                                       </InputGroup.Prepend>
                                       <FormControl
+                                          style={{background:
+                                                this.state.getDoctorAddrValidated === false ? (
+                                                    '#b66d60'
+                                                ) : (
+                                                    'none'
+                                                )}
+                                          }
                                           placeholder="Search a doctor"
                                           aria-label="Address"
                                           aria-describedby="basic-addon1"
@@ -1278,6 +1330,13 @@ class App extends Component {
                                 <InputGroup.Text id="basic-addon1">Hash</InputGroup.Text>
                               </InputGroup.Prepend>
                               <FormControl
+                                  style={{background:
+                                        this.state.getRecordHashValidated === false ? (
+                                            '#b66d60'
+                                        ) : (
+                                            'none'
+                                        )}
+                                  }
                                   placeholder="Search a record"
                                   aria-label="Address"
                                   aria-describedby="basic-addon1"
