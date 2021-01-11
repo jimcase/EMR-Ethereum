@@ -76,7 +76,6 @@ contract MedicalRecord {
 
     /** Add a new Patient to the doctor mapping. */
     function addNewPatient(address _patient) public isDoctor() doctorIsAllowed(_patient) returns (bool) {
-
         doctorProfile[msg.sender].addPatient(_patient);
         // Event
         emit patientAddedByDoctorLog(msg.sender, _patient);

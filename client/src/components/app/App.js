@@ -105,10 +105,10 @@ class App extends Component {
 
     // Events
     allEvents: [],
-    networkDoctorsEvents: null,
-    networkRecordsEvents: null,
-    requestDoctorEvents: null,
-    addPatientToDoctorEvents: null
+    networkDoctorsEvents: [],
+    networkRecordsEvents: [],
+    requestDoctorEvents: [],
+    addPatientToDoctorEvents: []
   };
 
   constructor(props) {
@@ -134,8 +134,16 @@ class App extends Component {
           deployedNetwork && deployedNetwork.address,
       );
 
-      this.setState({web3, accounts, contract: instance},
-          this.getAllEvents);
+      this.setState({
+        web3: web3,
+        accounts: accounts,
+        contract: instance
+      }, () => {
+        this.getAllEvents();
+        this.getAddPatientEvents();
+        this.getCreatedDoctorEvents();
+      });
+
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -181,8 +189,6 @@ class App extends Component {
     else {
       this.setState({patientNameValidated: false});
     }
-
-
   }
 
   registerNewDoctor = async () => {
@@ -475,38 +481,65 @@ class App extends Component {
   getCreatedDoctorEvents = async () => {
 
     const {contract} = this.state;
-    let events = await contract.getPastEvents('createDoctorLog', {});
 
-    this.setState({
-      networkDoctorsEvents: events
-    });
+    contract.getPastEvents("createDoctorLog",
+        {
+          fromBlock: 0,
+          toBlock: 'latest' // You can also specify 'latest'
+        })
+        .then(events => {
+          this.setState({networkDoctorsEvents: events});
+          console.log(events);
+        })
+        .catch((err) => console.error(err));
   }
 
   getCreatedRecordEvents = async () => {
 
     const {contract} = this.state;
-    let events = await contract.getPastEvents('verifiedRecordLog', {});
+    contract.getPastEvents("verifiedRecordLog",
+        {
+          fromBlock: 0,
+          toBlock: 'latest' // You can also specify 'latest'
+        })
+        .then(events => {
+          this.setState({networkRecordsEvents: events});
+          console.log(events);
+        })
+        .catch((err) => console.error(err));
 
-    this.setState({
-      networkRecordsEvents: events
-    });
   }
 
   getRequestDoctorEvents = async () => {
 
     const {contract} = this.state;
-    let events = await contract.getPastEvents('requestDoctorLog', {});
 
+    contract.getPastEvents("requestDoctorLog",
+        {
+          fromBlock: 0,
+          toBlock: 'latest' // You can also specify 'latest'
+        })
+        .then(events => {
+          this.setState({requestDoctorEvents: events});
+          console.log(events);
+        })
+        .catch((err) => console.error(err));
   }
 
   getAddPatientEvents = async () => {
 
     const {contract} = this.state;
-    let events = await contract.getPastEvents('patientAddedByDoctorLog', {});
 
-    this.setState({
-      addPatientToDoctorEvents: events
-    });
+    contract.getPastEvents("patientAddedByDoctorLog",
+        {
+          fromBlock: 0,
+          toBlock: 'latest' // You can also specify 'latest'
+        })
+        .then(events => {
+          this.setState({addPatientToDoctorEvents: events});
+          console.log(events);
+        })
+        .catch((err) => console.error(err));
   }
 
   getAllEvents = async () => {
@@ -514,7 +547,7 @@ class App extends Component {
     const {contract} = this.state;
 
     //let events = await contract.events.allEvents({fromBlock: 0, toBlock: 'latest'}).then(r => null);
-    contract.events.allEvents({fromBlock: 0}, console.log);
+    //contract.events.allEvents({fromBlock: 0}, console.log);
     //console.log(events);
 
     contract.getPastEvents("allEvents",
@@ -610,10 +643,7 @@ class App extends Component {
               </h1>
             </Container>
           </Row>
-
-
           <Row>
-
             <Container>
               {/* Home page */}
               <div className="Home">
@@ -1234,84 +1264,70 @@ class App extends Component {
                                   )}
                                 </div>
                               </Card>
+
                               <Tabs defaultActiveKey="doctors" id="uncontrolled-tab-example2"
                                     style={{marginTop: '50px'}}>
-                                <Tab eventKey="doctors" title="Doctors(in development)" style={{paddingTop: '30px'}}>
+                                <Tab eventKey="doctors" title="Doctor updates" style={{paddingTop: '30px'}}>
 
                                   <CardColumns>
-                                    <Card>
-                                      <Card.Img variant="top" src={require("../../assets/doc1.jpg")}/>
-                                      <Card.Body>
-                                        <Card.Title>Card title</Card.Title>
-                                        <Card.Text>
-                                          This card has supporting text below as a natural lead-in to additional
-                                          content.{' '}
-                                          <small className="text-muted">
-                                            Someone famous in <cite title="Source Title">Source Title</cite>
-                                          </small>
-                                        </Card.Text>
-                                      </Card.Body>
-                                      <Card.Footer>
-                                        <small className="text-muted">Last updated 3 mins ago</small>
-                                      </Card.Footer>
-                                    </Card>
-                                    <Card>
-                                      <Card.Img variant="top" src={require("../../assets/doc2.jpg")}/>
-                                      <Card.Body>
-                                        <Card.Title>Card title</Card.Title>
-                                        <Card.Text>
-                                          This card has supporting text below as a natural lead-in to additional
-                                          content.{' '}
-                                          <small className="text-muted">
-                                            Someone famous in <cite title="Source Title">Source Title</cite>
-                                          </small>
-                                        </Card.Text>
-                                      </Card.Body>
-                                      <Card.Footer>
-                                        <small className="text-muted">Last updated 3 mins ago</small>
-                                      </Card.Footer>
-                                    </Card>
-
-
-                                    <Card>
-                                      <Card.Img variant="top" src={require("../../assets/doc3.jpg")}/>
-                                      <Card.Body>
-                                        <Card.Title>Card title</Card.Title>
-                                        <Card.Text>
-                                          This card has supporting text below as a natural lead-in to additional
-                                          content.{' '}
-                                          <small className="text-muted">
-                                            Someone famous in <cite title="Source Title">Source Title</cite>
-                                          </small>
-                                        </Card.Text>
-                                      </Card.Body>
-                                      <Card.Footer>
-                                        <small className="text-muted">Last updated 3 mins ago</small>
-                                      </Card.Footer>
-                                    </Card>
 
                                     {this.state.networkDoctorsEvents ? (
-                                        <Card>
-                                          <Card.Img variant="top" src={require("../../assets/doc3.jpg")}/>
-                                          <Card.Body>
-                                            <Card.Title>Doctor title</Card.Title>
-                                            <Card.Text>
-                                              This card has supporting text below as a natural lead-in to additional
-                                              content.{' '}
-                                              <small className="text-muted">
-                                                Someone famous in <cite title="Source Title">Source Title</cite>
-                                              </small>
-                                            </Card.Text>
-                                          </Card.Body>
-                                          <Card.Footer>
-                                            <small className="text-muted">Last updated 3 mins ago</small>
-                                          </Card.Footer>
-                                        </Card>
+                                        this.state.networkDoctorsEvents.map(function (item, i) {
+                                          return <div>
+                                            <Card>
+                                              <Card.Img variant="top" src={require("../../assets/doc3.jpg")}/>
+                                              <Card.Body>
+                                                {console.log(item)}
+                                                <Card.Title>Doctor</Card.Title>
+                                                <Card.Text>
+                                                  Address: {item.returnValues._doctor}{' '}
+                                                  <small className="text-muted">
+                                                    Someone famous in <cite title="Source Title">Source Title</cite>
+                                                  </small>
+                                                </Card.Text>
+                                              </Card.Body>
+                                              <Card.Footer>
+                                                <small className="text-muted">Last updated 3 mins ago</small>
+                                              </Card.Footer>
+                                            </Card>
+                                          </div>
+
+                                        })
                                     ) : (
                                         <p>Not doctors found from events</p>
                                     )}
 
                                   </CardColumns>
+                                </Tab>
+
+                                <Tab eventKey="patients" title="Patients" style={{paddingTop: '30px'}}>
+
+                                  {this.state.addPatientToDoctorEvents ? (
+                                      this.state.addPatientToDoctorEvents.map(function (item, i) {
+                                        return <div>
+                                          <Card>
+                                            <Card.Img variant="top" src={require("../../assets/doc3.jpg")}/>
+                                            <Card.Body>
+                                              <Card.Title>Patient title</Card.Title>
+                                              <Card.Text>
+                                                This card has supporting text below as a natural lead-in to additional
+                                                content.{' '}
+                                                <small className="text-muted">
+                                                  Someone famous in <cite title="Source Title">Source Title</cite>
+                                                </small>
+                                              </Card.Text>
+                                            </Card.Body>
+                                            <Card.Footer>
+                                              <small className="text-muted">Last updated 3 mins ago</small>
+                                            </Card.Footer>
+                                          </Card>
+                                        </div>
+
+                                      })
+                                  ) : (
+                                      <p>Not doctors found from events</p>
+                                  )}
+
                                 </Tab>
 
                               </Tabs>
@@ -1376,7 +1392,6 @@ class App extends Component {
 
                       {
                         this.state.allEvents.map(function (item, i) {
-                          console.log('test');
                           return <div>
                             <Alert variant="success" style={{margin: '10px', maxWidth: '100%'}}>
                               <Alert.Heading> {JSON.stringify(item.event)} ({i})</Alert.Heading>
@@ -1387,7 +1402,7 @@ class App extends Component {
                               <hr/>
                               <p className="mb-0">
                                 <p>
-                                  Block number:{item.blockNumber}
+                                  Block number: {item.blockNumber}
                                 </p>
                                 <p>
                                   Block hash: {item.blockHash}
@@ -1398,14 +1413,10 @@ class App extends Component {
 
                         })
                       }
-
-
                     </Tab>
                   </Tabs>
-
                 </Container>
               </div>
-
 
             </Container>
 
