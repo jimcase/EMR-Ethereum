@@ -27,6 +27,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import CryptoJS from 'crypto-js';
 
 import "./App.css";
+import web3 from "web3";
 
 class App extends Component {
   state = {
@@ -56,10 +57,15 @@ class App extends Component {
     verifyRecordEncoding: null,
     verifyRecordHash: null,
 
+    // As admin
     addDoctorAddress: null,
+    addDoctorAddressValidated: null,
     addDoctorName: null,
+    addDoctorNameValidated: null,
     addDoctorUrl: null,
+    addDoctorUrlValidated: null,
     addDoctorMetadata: null,
+    addDoctorMetadataValidated: null,
 
     requestNewDoctorAddr: null,
 
@@ -126,13 +132,20 @@ class App extends Component {
 
   }
 
+  stringIsValid(str) {
+
+    return str != null && str !== "";
+  }
+  addressIsValid(address) {
+
+    return web3.utils.isAddress(address);
+  }
+
   registerAsPatient = async () => {
 
     const {accounts, contract} = this.state;
 
-    if (this.state.patientName
-        && this.state.patientName.trim() !== ""
-        && this.state.patientName.trim() != null){
+    if (this.stringIsValid(this.state.patientName)){
 
       this.setState({patientNameValidated: true});
 
@@ -150,12 +163,59 @@ class App extends Component {
 
   registerNewDoctor = async () => {
 
+    // Get web3 data
     const {accounts, contract} = this.state;
 
-    await contract.methods.addDoctor(this.state.addDoctorAddress,
-        this.state.addDoctorName,
-        this.state.addDoctorUrl,
-        this.state.addDoctorMetadata).send({from: accounts[0]});
+    // Get inputs from state
+    const address = this.state.addDoctorAddress;
+    const doctorName = this.state.addDoctorName;
+    const url = this.state.addDoctorUrl;
+    const metadata = this.state.addDoctorMetadata;
+
+    // Check if they are valid
+    let addressIsValid = this.addressIsValid(address);
+    let doctorNameIsValid = this.stringIsValid(doctorName);
+    let urlIsValid = this.stringIsValid(url);
+    let metadataIsValid = this.stringIsValid(metadata);
+
+    // update front in case not validated
+    if (!addressIsValid){
+      this.setState({addDoctorAddressValidated: false});
+    }
+    else{
+      this.setState({addDoctorAddressValidated: true});
+    }
+    if (!doctorNameIsValid){
+      this.setState({addDoctorNameValidated: false});
+    }
+    else{
+      this.setState({addDoctorNameValidated: true});
+    }
+    if (!urlIsValid){
+      this.setState({addDoctorUrlValidated: false});
+    }
+    else{
+      this.setState({addDoctorUrlValidated: true});
+    }
+    if (!metadataIsValid){
+      this.setState({addDoctorMetadataValidated: false});
+    }
+    else{
+      this.setState({addDoctorMetadataValidated: true});
+    }
+
+    if (addressIsValid
+        && doctorNameIsValid
+        && urlIsValid
+        && metadataIsValid
+    ){
+      await contract.methods.addDoctor(address,
+          doctorName,
+          url,
+          metadata).send({from: accounts[0]}).catch((err) => {
+          console.log("Failed with error: " + err);
+      });
+    }
   }
 
   requestNewDoctor = async () => {
@@ -395,17 +455,17 @@ class App extends Component {
                                   <ListGroupItem>
                                     <InputGroup className="mb-3">
                                       <InputGroup.Prepend>
-                                        <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
+                                        <InputGroup.Text id="basic-addon1">Name</InputGroup.Text>
                                       </InputGroup.Prepend>
                                       <FormControl
                                           style={{background:
-                                                  this.state.patientNameValidated ? (
-                                                   'blue'
+                                                  this.state.patientNameValidated === false ? (
+                                                   '#b66d60'
                                                     ) : (
-                                                    'red'
+                                                    'none'
                                                   )}
                                             }
-                                          placeholder="Name"
+                                          placeholder="Enter your name"
                                           aria-label="patientName"
                                           aria-describedby="basic-addon1"
                                           onChange={e => this.setState({patientName: e.target.value})}
@@ -435,6 +495,13 @@ class App extends Component {
                                               <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                                             </InputGroup.Prepend>
                                             <FormControl
+                                                style={{background:
+                                                      this.state.addDoctorAddressValidated === false ? (
+                                                          '#b66d60'
+                                                      ) : (
+                                                          'none'
+                                                      )}
+                                                }
                                                 placeholder="Doctor address"
                                                 aria-label="Username"
                                                 aria-describedby="basic-addon1"
@@ -446,6 +513,13 @@ class App extends Component {
                                               <InputGroup.Text id="basic-addon1">Name</InputGroup.Text>
                                             </InputGroup.Prepend>
                                             <FormControl
+                                                style={{background:
+                                                      this.state.addDoctorNameValidated === false ? (
+                                                          '#b66d60'
+                                                      ) : (
+                                                          'none'
+                                                      )}
+                                                }
                                                 placeholder="name"
                                                 aria-label="Name"
                                                 aria-describedby="basic-addon1"
@@ -457,6 +531,13 @@ class App extends Component {
                                               <InputGroup.Text id="basic-addon1">URL</InputGroup.Text>
                                             </InputGroup.Prepend>
                                             <FormControl
+                                                style={{background:
+                                                      this.state.addDoctorUrlValidated === false ? (
+                                                          '#b66d60'
+                                                      ) : (
+                                                          'none'
+                                                      )}
+                                                }
                                                 placeholder="url to *.json"
                                                 aria-label="url"
                                                 aria-describedby="basic-addon1"
@@ -468,6 +549,13 @@ class App extends Component {
                                               <InputGroup.Text id="basic-addon1">Metadata hash</InputGroup.Text>
                                             </InputGroup.Prepend>
                                             <FormControl
+                                                style={{background:
+                                                      this.state.addDoctorMetadataValidated === false ? (
+                                                          '#b66d60'
+                                                      ) : (
+                                                          'none'
+                                                      )}
+                                                }
                                                 placeholder="metadata hash"
                                                 aria-label="Metadata"
                                                 aria-describedby="basic-addon1"
