@@ -37,7 +37,7 @@ class App extends Component {
     newFile: null,
     verified: false,
     isUser: false,
-    patientName: null,
+
     requestNewDoctor: null,
     verifyHash: null,
     openDoctor: false,
@@ -45,6 +45,10 @@ class App extends Component {
     recordPatient: null,
     recordEncoding: 'SHA256',
     recordHash: null,
+
+    // Register as patient
+    patientNameValidated: null,
+    patientName: null,
 
     // Verify feature
     verifyRecordDoctor: null,
@@ -126,10 +130,21 @@ class App extends Component {
 
     const {accounts, contract} = this.state;
 
-    //console.log(accounts);
+    if (this.state.patientName
+        && this.state.patientName.trim() !== ""
+        && this.state.patientName.trim() != null){
 
-    await contract.methods.registerAsPatient('jaime').send({from: accounts[0]});
-    //await contract.methods.registerAsPatient('jaime').call();
+      this.setState({patientNameValidated: true});
+
+      await contract.methods.registerAsPatient(this.state.patientName).send({from: accounts[0]}).catch((err) => {
+        console.log("Failed with error: " + err);
+      });
+    }
+    else {
+      this.setState({patientNameValidated: false});
+      console.log("not validated");
+    }
+
 
   }
 
@@ -238,23 +253,6 @@ class App extends Component {
     const {contract} = this.state;
     let events = await contract.getPastEvents('requestDoctorLog', {});
 
-    /*
-    contract.events.createDoctorLog({
-      filter: {myIndexedParam: [20,23], myOtherIndexedParam: '0x123456789...'}, // Using an array means OR: e.g. 20 or 23
-      fromBlock: 0
-    }, function(error, event){ console.log(event); })
-        .on('data', function(event){
-          console.log(event); // same results as the optional callback above
-        })
-        .on('changed', function(event){
-          // remove event from local database
-        })
-        .on('error', console.error);
-
-    this.setState({
-      networkRecordsEvents: events
-    });
-    */
   }
 
   getAddPatientEvents = async () => {
@@ -400,6 +398,13 @@ class App extends Component {
                                         <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                                       </InputGroup.Prepend>
                                       <FormControl
+                                          style={{background:
+                                                  this.state.patientNameValidated ? (
+                                                   'blue'
+                                                    ) : (
+                                                    'red'
+                                                  )}
+                                            }
                                           placeholder="Name"
                                           aria-label="patientName"
                                           aria-describedby="basic-addon1"
