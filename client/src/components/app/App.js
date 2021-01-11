@@ -40,12 +40,20 @@ class App extends Component {
     isUser: false,
 
     requestNewDoctor: null,
-    verifyHash: null,
+
     openDoctor: false,
 
+    // Add record: from doctor
     recordPatient: null,
+    recordPatientValidated: null,
     recordEncoding: 'SHA256',
+    recordEncodingValidated: null,
     recordHash: null,
+    recordHashValidated: null,
+
+    // verify record: from patient
+    verifyHash: null,
+    verifyHashValidated: null,
 
     // Register as patient
     patientNameValidated: null,
@@ -53,11 +61,15 @@ class App extends Component {
 
     // Verify feature
     verifyRecordDoctor: null,
+    verifyRecordDoctorValidated: null,
     verifyRecordPatient: null,
-    verifyRecordEncoding: null,
+    verifyRecordPatientValidated: null,
+    verifyRecordEncoding: 'SHA256',
+    verifyRecordEncodingValidated: null,
     verifyRecordHash: null,
+    verifyRecordHashValidated: null,
 
-    // As admin
+    // Add new Doctor. from admin
     addDoctorAddress: null,
     addDoctorAddressValidated: null,
     addDoctorName: null,
@@ -67,9 +79,13 @@ class App extends Component {
     addDoctorMetadata: null,
     addDoctorMetadataValidated: null,
 
+    // From patient
     requestNewDoctorAddr: null,
+    requestNewDoctorAddrValidated: null,
 
+    // from Doctor
     newPatientInDoctor: null,
+    newPatientInDoctorValidated: null,
 
     // ANY
     getRecordHash: null,
@@ -151,11 +167,11 @@ class App extends Component {
 
       await contract.methods.registerAsPatient(this.state.patientName).send({from: accounts[0]}).catch((err) => {
         console.log("Failed with error: " + err);
+        this.setState({patientNameValidated: false});
       });
     }
     else {
       this.setState({patientNameValidated: false});
-      console.log("not validated");
     }
 
 
@@ -213,7 +229,7 @@ class App extends Component {
           doctorName,
           url,
           metadata).send({from: accounts[0]}).catch((err) => {
-          console.log("Failed with error: " + err);
+          console.log("register new doctor failed with error: " + err);
       });
     }
   }
@@ -221,46 +237,176 @@ class App extends Component {
   requestNewDoctor = async () => {
 
     const {accounts, contract} = this.state;
+    const doctorRequested = this.state.requestNewDoctorAdd;
 
-    await contract.methods.requestDoctor(this.state.requestNewDoctorAddr).send({from: accounts[0]});
+    if (this.addressIsValid(doctorRequested)) {
+      this.setState({requestNewDoctorAddrValidated: true});
+      await contract.methods.requestDoctor(this.state.requestNewDoctorAdd).send({from: accounts[0]}).catch((err) => {
+        console.log("Failed with error: " + err);
+        this.setState({requestNewDoctorAddrValidated: false});
+      });
+    }
+    else{
+      this.setState({requestNewDoctorAddrValidated: false});
+    }
   }
 
   verifyRecord = async () => {
 
     const {accounts, contract} = this.state;
 
-    await contract.methods.verifyRecord(this.state.verifyHash).send({from: accounts[0]});
+    const hashToVerify = this.state.verifyHash;
+    if (this.stringIsValid(hashToVerify)) {
+      this.setState({verifyHashValidated: true});
+      await contract.methods.verifyRecord(hashToVerify).send({from: accounts[0]}).catch((err) => {
+        console.log("Failed with error: " + err);
+        this.setState({verifyHashValidated: false});
+      });
+    }
+    else{
+      this.setState({verifyHashValidated: false});
+    }
   }
 
   addNewPatientInDoctor = async () => {
 
     const {accounts, contract} = this.state;
 
-    await contract.methods.addNewPatient(this.state.newPatientInDoctor).send({from: accounts[0]});
+    const patient = this.state.newPatientInDoctor;
+
+    if (this.addressIsValid(patient)) {
+      this.setState({newPatientInDoctorValidated: true});
+      await contract.methods.addNewPatient(patient).send({from: accounts[0]}).catch((err) => {
+        console.log("Failed with error: " + err);
+        this.setState({newPatientInDoctorValidated: false});
+      });
+    }
+    else{
+      this.setState({newPatientInDoctorValidated: false});
+    }
   }
 
   switchOpen = async () => {
 
     const {accounts, contract} = this.state;
-    await contract.methods.switchActiveDoctor().send({from: accounts[0]});
+
+    const changeOpenState = !this.state.openDoctor;
+
+    if (changeOpenState){
+      this.setState({openDoctor: changeOpenState});
+      await contract.methods.switchActiveDoctor().send({from: accounts[0]}).catch((err) => {
+        console.log("Failed with error: " + err);
+        this.setState({openDoctor: !changeOpenState});  //back to initial state
+      });
+    }
   }
 
-  onClickSwitch = async () => {
-    this.setState({openDoctor: !this.state.openDoctor},
-        this.switchOpen)
-
-  }
   addNewRecord = async () => {
 
     const {accounts, contract} = this.state;
-    await contract.methods.addRecord(this.state.recordPatient, this.state.recordHash, this.state.recordEncoding).send({from: accounts[0]});
+
+    // Get inputs from state
+    const patient = this.state.recordPatient;
+    const record = this.state.recordHash;
+    const encoding = this.state.recordEncoding;
+
+    // Check if they are valid
+    let patientIsValid = this.addressIsValid(patient);
+    let recordIsValid = this.stringIsValid(record);
+    let encodingIsValid = this.stringIsValid(encoding);
+
+    // update front in case not validated
+    if (!patientIsValid){
+      this.setState({recordPatientValidated: false});
+    }
+    else{
+      this.setState({recordPatientValidated: true});
+    }
+    if (!recordIsValid){
+      this.setState({recordHashValidated: false});
+    }
+    else{
+      this.setState({recordHashValidated: true});
+    }
+    if (!encodingIsValid){
+      this.setState({recordEncodingValidated: false});
+    }
+    else{
+      this.setState({recordEncodingValidated: true});
+    }
+
+    if (patientIsValid
+        && recordIsValid
+        && encodingIsValid){
+      await contract.methods.addRecord(this.state.recordPatient, this.state.recordHash, this.state.recordEncoding).send({from: accounts[0]}).catch((err) => {
+        console.log("Create a record failed with error: " + err);
+      });
+    }
+
   }
+
+  verifyRecordFromAny = async () => {
+
+    const {accounts, contract} = this.state;
+
+    const doctor = this.state.verifyRecordDoctor;
+    const patient = this.state.verifyRecordPatient;
+    const hash = this.state.verifyRecordHash;
+    const encoding = this.state.verifyRecordEncoding;
+
+    // Check if they are valid
+    let doctorIsValid = this.addressIsValid(doctor);
+    let patientIsValid = this.addressIsValid(patient);
+    let hashIsValid = this.stringIsValid(hash);
+    let encodingIsValid = this.stringIsValid(encoding);
+
+    if (!doctorIsValid){
+      this.setState({verifyRecordDoctorValidated: false});
+    }
+    else{
+      this.setState({verifyRecordDoctorValidated: true});
+    }
+    if (!patientIsValid){
+      this.setState({verifyRecordPatientValidated: false});
+    }
+    else{
+      this.setState({verifyRecordPatientValidated: true});
+    }
+    if (!hashIsValid){
+      this.setState({verifyRecordHashValidated: false});
+    }
+    else{
+      this.setState({verifyRecordHashValidated: true});
+    }
+    if (!encodingIsValid){
+      this.setState({verifyRecordEncodingValidated: false});
+    }
+    else{
+      this.setState({verifyRecordEncodingValidated: true});
+    }
+
+    if (doctorIsValid
+        && patientIsValid
+        && hashIsValid
+        && encodingIsValid
+    ){
+      contract.methods.getRecord(this.state.getRecordHash).call({from: accounts[0]}).then(r => {
+        this.setState({verified: r[0] === doctor && r[1] === patient && r[2] === encoding})
+            .catch((err) => {
+              console.log("Get a record failed with error: " + err);
+            });
+      });
+    }
+  }
+
   getRecord = async () => {
 
     const {accounts, contract} = this.state;
 
     contract.methods.getRecord(this.state.getRecordHash).call({from: accounts[0]}).then(r => {
       this.setState({recordFound: r});
+    }).catch((err) => {
+      console.log("Get a record failed with error: " + err);
     });
 
   }
@@ -344,7 +490,6 @@ class App extends Component {
         })
         .catch((err) => console.error(err));
   }
-
 
   onChangeVerifyFile(e) {
 
@@ -586,6 +731,13 @@ class App extends Component {
                                               <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                                             </InputGroup.Prepend>
                                             <FormControl
+                                                style={{background:
+                                                      this.state.requestNewDoctorAddrValidated === false ? (
+                                                          '#b66d60'
+                                                      ) : (
+                                                          'none'
+                                                      )}
+                                                }
                                                 placeholder="Request new doctor (address)"
                                                 aria-label="Address"
                                                 aria-describedby="basic-addon1"
@@ -615,6 +767,13 @@ class App extends Component {
                                                   <InputGroup.Text id="basic-addon1">hash</InputGroup.Text>
                                                 </InputGroup.Prepend>
                                                 <FormControl
+                                                    style={{background:
+                                                          this.state.verifyHashValidated === false ? (
+                                                              '#b66d60'
+                                                          ) : (
+                                                              'none'
+                                                          )}
+                                                    }
                                                     placeholder="file hash"
                                                     aria-label="Username"
                                                     aria-describedby="basic-addon1"
@@ -625,6 +784,8 @@ class App extends Component {
                                           </Form.Group>
                                         </Form>
                                         <Button variant="primary" onClick={this.verifyRecord}>Verify</Button>
+
+
                                       </Card.Text>
                                     </Card.Body>
                                     <Card.Footer className="text-muted">
@@ -647,6 +808,13 @@ class App extends Component {
                                               <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                                             </InputGroup.Prepend>
                                             <FormControl
+                                                style={{background:
+                                                      this.state.newPatientInDoctorValidated === false ? (
+                                                          '#b66d60'
+                                                      ) : (
+                                                          'none'
+                                                      )}
+                                                }
                                                 placeholder="Add new patient (address)"
                                                 aria-label="Username"
                                                 aria-describedby="basic-addon1"
@@ -661,18 +829,26 @@ class App extends Component {
                                           <InputGroup className="mb-3">
                                             <InputGroup.Prepend>
                                               <Button variant="outline-secondary"
-                                                      onClick={this.onClickSwitch}
+                                                      onClick={this.switchOpen}
                                               >Switch</Button>
                                             </InputGroup.Prepend>
-                                            <FormControl aria-describedby="basic-addon1"
-                                                         placeholder={
-                                                           this.state.openDoctor ? (
-                                                               "Open to new patients"
-                                                           ) : (
-                                                               "Close to new patients"
-                                                           )
-                                                         }
-                                                         readOnly={"state"}/>
+                                            <FormControl
+                                                style={{background:
+                                                      this.state.openDoctor === false ? (
+                                                          '#b66d60'
+                                                      ) : (
+                                                          '#81d06f'
+                                                      )}
+                                                }
+                                                aria-describedby="basic-addon1"
+                                                 placeholder={
+                                                   this.state.openDoctor ? (
+                                                       "Open to new patients"
+                                                   ) : (
+                                                       "Close to new patients"
+                                                   )
+                                                 }
+                                                 readOnly={"state"}/>
                                           </InputGroup>
                                         </ListGroup.Item>
                                         <ListGroup.Item>
@@ -698,12 +874,20 @@ class App extends Component {
                                                     <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                                                   </InputGroup.Prepend>
                                                   <FormControl
+                                                      style={{background:
+                                                            this.state.recordPatientValidated === false ? (
+                                                                '#b66d60'
+                                                            ) : (
+                                                                'none'
+                                                            )}
+                                                      }
                                                       placeholder="Address"
                                                       aria-label="Username"
                                                       aria-describedby="basic-addon1"
                                                       onChange={e => this.setState({recordPatient: e.target.value})}
                                                   />
                                                 </InputGroup>
+
                                               </Col>
                                             </Form.Group>
                                             <Form.Group as={Row} controlId="formPlaintextPassword">
@@ -711,11 +895,18 @@ class App extends Component {
                                                 Encoding
                                               </Form.Label>
                                               <Col sm="10">
-                                                <Form.Control as="select"
-                                                              defaultValue="SHA256"
-                                                              onChange={this.getSelectValue}>
+                                                <Form.Control
+                                                    style={{borderColor:
+                                                          this.state.recordEncodingValidated === false ? (
+                                                              '#b66d60'
+                                                          ) : (
+                                                              'none'
+                                                          )}
+                                                    }
+                                                    as="select"
+                                                    defaultValue="SHA256"
+                                                    onChange={this.getSelectValue}>
                                                   <option>SHA252</option>
-                                                  <option>...</option>
                                                 </Form.Control>
                                               </Col>
                                             </Form.Group>
@@ -741,6 +932,13 @@ class App extends Component {
                                                   <InputGroup.Text id="basic-addon1">hash</InputGroup.Text>
                                                 </InputGroup.Prepend>
                                                 <FormControl
+                                                    style={{background:
+                                                          this.state.recordHashValidated === false ? (
+                                                              '#b66d60'
+                                                          ) : (
+                                                              'none'
+                                                          )}
+                                                    }
                                                     placeholder="file hash"
                                                     aria-label="Username"
                                                     aria-describedby="basic-addon1"
@@ -776,6 +974,13 @@ class App extends Component {
                                               <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                                             </InputGroup.Prepend>
                                             <FormControl
+                                                style={{background:
+                                                      this.state.verifyRecordDoctorValidated === false ? (
+                                                          '#b66d60'
+                                                      ) : (
+                                                          'none'
+                                                      )}
+                                                }
                                                 placeholder="Address"
                                                 aria-label="Username"
                                                 aria-describedby="basic-addon1"
@@ -783,6 +988,7 @@ class App extends Component {
                                             />
                                           </InputGroup>
                                         </Col>
+
                                       </Form.Group>
 
                                       <Form.Group as={Row} controlId="formPlaintextPassword">
@@ -795,6 +1001,13 @@ class App extends Component {
                                               <InputGroup.Text id="basic-addon1">@</InputGroup.Text>
                                             </InputGroup.Prepend>
                                             <FormControl
+                                                style={{background:
+                                                      this.state.verifyRecordPatientValidated === false ? (
+                                                          '#b66d60'
+                                                      ) : (
+                                                          'none'
+                                                      )}
+                                                }
                                                 placeholder="Address"
                                                 aria-label="Username"
                                                 aria-describedby="basic-addon1"
@@ -808,8 +1021,16 @@ class App extends Component {
                                           Encoding
                                         </Form.Label>
                                         <Col sm="10">
-                                          <Form.Control as="select" defaultValue="Choose..."
-                                                        onChange={e => this.setState({verifyRecordEncoding: e.target.value})}>
+                                          <Form.Control
+                                              style={{background:
+                                                    this.state.verifyRecordEncodingValidated === false ? (
+                                                        '#b66d60'
+                                                    ) : (
+                                                        'none'
+                                                    )}
+                                              }
+                                              as="select" defaultValue="Choose..."
+                                              onChange={e => this.setState({verifyRecordEncoding: e.target.value})}>
                                             <option>SHA252</option>
                                             <option>...</option>
                                           </Form.Control>
@@ -836,6 +1057,13 @@ class App extends Component {
                                               <InputGroup.Text id="basic-addon1">hash</InputGroup.Text>
                                             </InputGroup.Prepend>
                                             <FormControl
+                                                style={{background:
+                                                      this.state.verifyRecordHashValidated === false ? (
+                                                          '#b66d60'
+                                                      ) : (
+                                                          'none'
+                                                      )}
+                                                }
                                                 placeholder="file hash"
                                                 aria-label="Username"
                                                 aria-describedby="basic-addon1"
@@ -845,12 +1073,16 @@ class App extends Component {
                                         </Col>
                                       </Form.Group>
                                     </Form>
-                                    <Button variant="primary">Verify</Button>
+                                    <Button
+                                        variant="primary"
+                                        onClick={this.verifyRecordFromAny}
+                                    >
+                                      Verify</Button>
                                   </Card.Text>
                                 </Card.Body>
                                 <Card.Footer className="text-muted">
-                                  <p>Hash:</p>{this.state.file}
-                                  <h5>Verified {this.state.verified ? (
+                                  <p>Hash: {this.state.verifyRecordHash}</p>
+                                  <h5>is a valid record? {this.state.verified ? (
                                       <p>YES</p>
                                   ) : (
                                       <p>NO</p>
@@ -864,8 +1096,6 @@ class App extends Component {
                         </Card.Body>
 
                       </Card>
-
-
                     </Tab>
                     <Tab eventKey="network" title="Your network">
                       <Card>
@@ -1083,7 +1313,6 @@ class App extends Component {
                         </div>
                       </Card>
                     </Tab>
-
                     <Tab eventKey="events" title="Events">
 
                       {
@@ -1113,7 +1342,6 @@ class App extends Component {
 
 
                     </Tab>
-
                   </Tabs>
 
                 </Container>
