@@ -150,7 +150,7 @@ class App extends Component {
         this.getAllEvents();
         this.getAddPatientEvents();
         this.getCreatedDoctorEvents();
-        this.checkImPatient();
+        //this.checkImPatient();
       });
 
     } catch (error) {
@@ -1186,11 +1186,15 @@ class App extends Component {
                                   </Card.Text>
                                 </Card.Body>
                                 <Card.Footer className="text-muted">
-                                  <p>Hash: {this.state.verifyRecordHash}</p>
+                                  <p>Hash to check: {this.state.verifyRecordHash}</p>
                                   <h5>is a valid record? {this.state.verified ? (
-                                      <p>YES</p>
+                                      <p
+                                          style={{background: 'green'}}
+                                      >YES</p>
                                   ) : (
-                                      <p>NO</p>
+                                      <p
+
+                                      >No</p>
                                   )}</h5>
                                 </Card.Footer>
                               </Card>
