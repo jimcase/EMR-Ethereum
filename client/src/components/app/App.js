@@ -167,7 +167,7 @@ class App extends Component {
     window.ethereum.on('accountsChanged', (_accounts) => {
       this.setState({accounts: _accounts});
       console.log("changed acc: " + _accounts);
-      this.checkImPatient().then(r => null);
+      //this.checkImPatient().then(r => null);
     });
 
     window.ethereum.on('chainChanged', (_chainId) => window.location.reload());
@@ -435,14 +435,26 @@ class App extends Component {
         && hashIsValid
         && encodingIsValid
     ){
-      contract.methods.getRecord(this.state.getRecordHash).call({from: accounts[0]}).then(r => {
-        this.setState({verified: r[0] === doctor && r[1] === patient && r[2] === encoding})
-            .catch((err) => {
-              console.log("Get a record failed with error: " + err);
-            });
+      await contract.methods.getRecord(hash).call({from: accounts[0]}).then(r => {
+
+        let result = r[0] === doctor && r[1] === patient;
+        if (result){
+          console.log("Its equal")
+          console.log(r[2]);
+          console.log(encoding);
+        }
+
+        this.setState({verified: result});
+
+
+      }).catch((err) => {
+        this.setState({verified: false});
+        console.log("Get a record failed with error: " + err);
       });
     }
   }
+
+
 
   getRecord = async () => {
     const {accounts, contract} = this.state;
@@ -1000,7 +1012,7 @@ class App extends Component {
                                                     as="select"
                                                     defaultValue="SHA256"
                                                     onChange={this.getSelectValue}>
-                                                  <option>SHA252</option>
+                                                  <option>SHA256</option>
                                                 </Form.Control>
                                               </Col>
                                             </Form.Group>
@@ -1124,7 +1136,7 @@ class App extends Component {
                                               }
                                               as="select" defaultValue="Choose..."
                                               onChange={e => this.setState({verifyRecordEncoding: e.target.value})}>
-                                            <option>SHA252</option>
+                                            <option>SHA256</option>
                                             <option>...</option>
                                           </Form.Control>
                                         </Col>
