@@ -37,6 +37,11 @@ class App extends Component {
     accounts: null,
     contract: null,
 
+    // Whom am I
+    imAdmin: false,
+    imPatient: false,
+    imDoctor: false,
+
     // load files
     file: null,
     newFile: null,
@@ -129,10 +134,13 @@ class App extends Component {
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = MedicalRecordContract.networks[networkId];
       // Get the contract instance.
+
+
       const instance = new web3.eth.Contract(
           MedicalRecordContract.abi,
           deployedNetwork && deployedNetwork.address,
       );
+      console.log("address deploy: "+ instance);
 
       this.setState({
         web3: web3,
@@ -421,7 +429,7 @@ class App extends Component {
       this.setState({getRecordHashValidated: true});
       contract.methods.getRecord(record).call({from: accounts[0]}).then(r => {
         this.setState({recordFound: r});
-        console.log("result: "+r);
+        //console.log("result: "+r);
       }).catch((err) => {
         this.setState({getRecordHashValidated: false});
         console.log("Get a record failed with error: " + err);
@@ -441,7 +449,7 @@ class App extends Component {
       this.setState({getDoctorAddrValidated: true});
       contract.methods.getDoctor(doctor).call({from: accounts[0]}).then(r => {
         this.setState({doctorFound: r});
-        console.log("result: "+r);
+        //console.log("result: "+r);
       }).catch((err) => {
         this.setState({getDoctorAddrValidated: false});
         console.log("Get a doctor failed with error: " + err);
@@ -461,7 +469,7 @@ class App extends Component {
       this.setState({getPatientAddrValidated: true});
       contract.methods.getPatient(patient).call({from: accounts[0]}).then(r => {
         this.setState({patientFound: r});
-        console.log("result: "+r);
+        //console.log("result: "+r);
       }).catch((err) => {
         this.setState({getPatientAddrValidated: false});
         console.log("Get a patient failed with error: " + err);
@@ -489,7 +497,7 @@ class App extends Component {
         })
         .then(events => {
           this.setState({networkDoctorsEvents: events});
-          console.log(events);
+          //console.log(events);
         })
         .catch((err) => console.error(err));
   }
@@ -504,7 +512,7 @@ class App extends Component {
         })
         .then(events => {
           this.setState({networkRecordsEvents: events});
-          console.log(events);
+          //console.log(events);
         })
         .catch((err) => console.error(err));
 
@@ -521,7 +529,7 @@ class App extends Component {
         })
         .then(events => {
           this.setState({requestDoctorEvents: events});
-          console.log(events);
+          //console.log(events);
         })
         .catch((err) => console.error(err));
   }
@@ -537,7 +545,7 @@ class App extends Component {
         })
         .then(events => {
           this.setState({addPatientToDoctorEvents: events});
-          console.log(events);
+          //console.log(events);
         })
         .catch((err) => console.error(err));
   }
@@ -557,7 +565,7 @@ class App extends Component {
         })
         .then(events => {
           this.setState({allEvents: events});
-          console.log(events);
+          //console.log(events);
         })
         .catch((err) => console.error(err));
   }
@@ -565,13 +573,13 @@ class App extends Component {
   onChangeVerifyFile(e) {
 
     var file = e.target.files[0];
-    console.log("type: " + typeof (file));
+    //console.log("type: " + typeof (file));
 
 
     var fileByteArray = [];
 
-    console.log((fileByteArray));
-    console.log(sha256("hello"));
+    //console.log((fileByteArray));
+    //console.log(sha256("hello"));
 
     console.log('encrypted-CryptoJS: ' + CryptoJS.SHA256(file).toString(CryptoJS.enc.Hex));
     //var sha256HexValue = asmCrypto.SHA256.hex(file);
