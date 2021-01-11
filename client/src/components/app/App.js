@@ -150,6 +150,7 @@ class App extends Component {
         this.getAllEvents();
         this.getAddPatientEvents();
         this.getCreatedDoctorEvents();
+        this.checkImPatient();
       });
 
     } catch (error) {
@@ -166,6 +167,7 @@ class App extends Component {
     window.ethereum.on('accountsChanged', (_accounts) => {
       this.setState({accounts: _accounts});
       console.log("changed acc: " + _accounts);
+      this.checkImPatient().then(r => null);
     });
 
     window.ethereum.on('chainChanged', (_chainId) => window.location.reload());
@@ -179,6 +181,27 @@ class App extends Component {
   addressIsValid(address) {
 
     return web3.utils.isAddress(address);
+  }
+
+  checkImPatient = async () => {
+
+    const {accounts, contract} = this.state;
+
+    if (accounts[0]) {
+      console.log("account loaded");
+      await contract.methods.getPatient(accounts[0]).call({from: accounts[0]}).then(r => {
+        this.setState({imPatient: true});
+
+        //console.log("result: "+r);
+      }).catch((err) => {
+        this.setState({imPatient: false});
+        console.log("Get a patient failed with error: " + err);
+      });
+    }
+    else{
+      this.setState({imPatient: false});
+      console.log("im not a patient");
+    }
   }
 
   registerAsPatient = async () => {
@@ -655,12 +678,10 @@ class App extends Component {
             <Container>
               {/* Home page */}
               <div className="Home">
-
                 <Container>
                   <Tabs defaultActiveKey="home" id="uncontrolled-tab-example">
                     <Tab eventKey="home" title="Profile">
                       <Card>
-
                         <Card.Body>
                           <Row>
                             <Col xs={12} md={4}>
@@ -696,9 +717,7 @@ class App extends Component {
                                             onClick={this.registerAsPatient}>
                                       Register as patient
                                     </Button>
-
                                   </ListGroupItem>
-
                                 </ListGroup>
                               </Card>
                             </Col>
@@ -870,7 +889,6 @@ class App extends Component {
                                   </Card>
                                 </Card.Body>
                               </Card>
-
                               <Card>
                                 <Card.Header><h3>As Doctor</h3></Card.Header>
                                 <Card.Body>
@@ -1033,7 +1051,6 @@ class App extends Component {
                                   </Card.Text>
                                 </Card.Body>
                               </Card>
-
                               <Card className="text-center" style={{marginTop: '50px'}}>
                                 <Card.Header><h2>Verify Record<Badge variant="secondary">New</Badge></h2></Card.Header>
                                 <Card.Body>
@@ -1168,9 +1185,7 @@ class App extends Component {
                             </Col>
 
                           </Row>
-
                         </Card.Body>
-
                       </Card>
                     </Tab>
                     <Tab eventKey="network" title="Your network">
@@ -1425,9 +1440,7 @@ class App extends Component {
                   </Tabs>
                 </Container>
               </div>
-
             </Container>
-
           </Row>
         </div>
     );
