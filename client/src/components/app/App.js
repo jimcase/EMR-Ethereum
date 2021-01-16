@@ -1064,9 +1064,9 @@ class App extends Component {
                                 </Card.Body>
                               </Card>
                               <Card className="text-center" style={{marginTop: '50px'}}>
-                                <Card.Header><h2>Verify Record<Badge variant="secondary">New</Badge></h2></Card.Header>
+                                <Card.Header><h2>Anyone<Badge variant="secondary">New</Badge></h2></Card.Header>
                                 <Card.Body>
-                                  <Card.Title>Upload a file</Card.Title>
+                                  <Card.Title>Verify a record</Card.Title>
                                   <Card.Text>
                                     <Form>
                                       <Form.Group as={Row} controlId="formPlaintextDoctor">
