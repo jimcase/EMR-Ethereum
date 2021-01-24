@@ -1,7 +1,7 @@
 # EMR-Ethereum
 [![Build Status](https://travis-ci.org/jimcase/EMR-Ethereum.svg?branch=main)](https://travis-ci.org/jimcase/EMR-Ethereum)
 
-Electronic Medical Records PoC.
+Electronic Medical Records PoC, by Caso myOMICS.io
 
 
 
