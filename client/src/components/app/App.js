@@ -282,11 +282,11 @@ class App extends Component {
   requestNewDoctor = async () => {
 
     const {accounts, contract} = this.state;
-    const doctorRequested = this.state.requestNewDoctorAdd;
+    const doctorRequested = this.state.requestNewDoctorAddr;
 
     if (this.addressIsValid(doctorRequested)) {
       this.setState({requestNewDoctorAddrValidated: true});
-      await contract.methods.requestDoctor(this.state.requestNewDoctorAdd).send({from: accounts[0]}).catch((err) => {
+      await contract.methods.requestDoctor(this.state.requestNewDoctorAddr).send({from: accounts[0]}).catch((err) => {
         console.log("Failed with error: " + err);
         this.setState({requestNewDoctorAddrValidated: false});
       });
@@ -600,7 +600,7 @@ class App extends Component {
         })
         .then(events => {
           this.setState({allEvents: events});
-          //console.log(events);
+          console.log(events);
         })
         .catch((err) => console.error(err));
   }
@@ -649,7 +649,7 @@ class App extends Component {
         <div className="App">
           <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
             <Navbar.Brand href="#home">
-              Poscare
+              myOMICS EMR
             </Navbar.Brand>
             <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
             <Navbar.Collapse id="responsive-navbar-nav">
@@ -1198,6 +1198,7 @@ class App extends Component {
                                   )}</h5>
                                 </Card.Footer>
                               </Card>
+                              <div style={{height: '500px'}}></div>
                             </Col>
 
                           </Row>
@@ -1430,7 +1431,7 @@ class App extends Component {
                     <Tab eventKey="events" title="Events">
 
                       {
-                        this.state.allEvents.map(function (item, i) {
+                        this.state.allEvents.reverse().map(function (item, i) {
                           return <div>
                             <Alert variant="success" style={{margin: '10px', maxWidth: '100%'}}>
                               <Alert.Heading> {JSON.stringify(item.event)} ({i})</Alert.Heading>
