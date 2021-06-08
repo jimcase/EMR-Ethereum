@@ -1,5 +1,5 @@
 contracts/MedicalRecord.sol
-jar:file:/Users/caso/.nvm/versions/node/v14.16.0/lib/node_modules/@smartdec/smartcheck/jdeploy-bundle/smartcheck-2.0-jar-with-dependencies.jar!/solidity-rules.xmlruleId: SOLIDITY_PRAGMAS_VERSION
+jar:file:/Users/xxx/.nvm/versions/node/v14.16.0/lib/node_modules/@smartdec/smartcheck/jdeploy-bundle/smartcheck-2.0-jar-with-dependencies.jar!/solidity-rules.xmlruleId: SOLIDITY_PRAGMAS_VERSION
 patternId: 23fc32
 severity: 1
 line: 1
