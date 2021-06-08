@@ -1,0 +1,75 @@
+contracts/MedicalRecord.sol
+jar:file:/Users/caso/.nvm/versions/node/v14.16.0/lib/node_modules/@smartdec/smartcheck/jdeploy-bundle/smartcheck-2.0-jar-with-dependencies.jar!/solidity-rules.xmlruleId: SOLIDITY_PRAGMAS_VERSION
+patternId: 23fc32
+severity: 1
+line: 1
+column: 16
+content: ^
+
+ruleId: SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA
+patternId: 5616b2
+severity: 1
+line: 7
+column: 12
+content: private
+
+ruleId: SOLIDITY_SHOULD_RETURN_STRUCT
+patternId: 83hf3l
+severity: 1
+line: 116
+column: 64
+content: (address,address,stringmemory,bool)
+
+ruleId: SOLIDITY_SHOULD_RETURN_STRUCT
+patternId: 83hf3l
+severity: 1
+line: 126
+column: 62
+content: (stringmemory,bool)
+
+ruleId: SOLIDITY_SHOULD_RETURN_STRUCT
+patternId: 83hf3l
+severity: 1
+line: 133
+column: 60
+content: (stringmemory,stringmemory,stringmemory,bool,bool)
+
+ruleId: SOLIDITY_SHOULD_RETURN_STRUCT
+patternId: 83hf3l
+severity: 1
+line: 203
+column: 44
+content: (stringmemory,bool)
+
+ruleId: SOLIDITY_SHOULD_RETURN_STRUCT
+patternId: 83hf3l
+severity: 1
+line: 250
+column: 44
+content: (stringmemory,stringmemory,stringmemory,bool,bool)
+
+ruleId: SOLIDITY_VISIBILITY
+patternId: 910067
+severity: 1
+line: 33
+column: 4
+content: constructor(){owner=msg.sender;}
+
+ruleId: SOLIDITY_VISIBILITY
+patternId: 910067
+severity: 1
+line: 182
+column: 4
+content: constructor(stringmemory_name){name=_name;active=true;}
+
+ruleId: SOLIDITY_VISIBILITY
+patternId: 910067
+severity: 1
+line: 218
+column: 4
+content: constructor(stringmemory_name,stringmemory_url,stringmemory_metadataHash){name=_name;url=_url;metadataHash=_metadataHash;open=false;active=true;}
+
+SOLIDITY_VISIBILITY :3
+SOLIDITY_PRAGMAS_VERSION :1
+SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA :1
+SOLIDITY_SHOULD_RETURN_STRUCT :5
